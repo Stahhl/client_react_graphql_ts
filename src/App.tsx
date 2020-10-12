@@ -1,26 +1,41 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { ReactNode } from "react";
+import "./App.css";
+import { useQuery, gql } from '@apollo/client';
+
+interface IProps {
+  currency: string;
+  rate: string;
+  // any other props that come into the component
+}
+
+const EXCHANGE_RATES = gql`
+  query GetExchangeRates {
+    rates(currency: "USD") {
+      currency
+      rate
+    }
+  }
+`;
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    ExchangeRates()
   );
+}
+
+function ExchangeRates() {
+  const { loading, error, data } = useQuery(EXCHANGE_RATES);
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error :(</p>;
+
+  return data.rates.map(({ currency, rate }: IProps) => (
+    <div key={currency}>
+      <p>
+        {currency}: {rate}
+      </p>
+    </div>
+  ));
 }
 
 export default App;
